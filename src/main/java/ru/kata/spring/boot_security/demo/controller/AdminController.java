@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.Model;
@@ -28,9 +29,10 @@ public class AdminController {
     }
 
     @GetMapping("/admin")
-    public String findAll(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
+    public String findAll(@AuthenticationPrincipal User user, Model model) {
+            model.addAttribute("users", userService.findAll());
+            model.addAttribute("user", user);
+            model.addAttribute("roles", roleService.findAllRole());
         return "user-list";
     }
     @GetMapping("/admin/user-create")

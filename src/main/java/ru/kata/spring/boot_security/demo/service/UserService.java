@@ -15,5 +15,4 @@ public interface UserService {
 
     User findByEmail(String email);
 
-    User passwordCoder(User user);
 }
