@@ -23,11 +23,6 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findAll();
     }
 
-    @Override
-    public void addDefaultRole() {
-        roleRepository.save(new Role(1L, "ROLE_USER"));
-        roleRepository.save(new Role(2L, "ROLE_ADMIN"));
-    }
 
     @Override
     public Set<Role> findByIdRoles(List<Long> roles) {
