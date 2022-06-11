@@ -15,6 +15,7 @@ import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping()
@@ -30,23 +31,25 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String findAll(@AuthenticationPrincipal User user, Model model) {
-            model.addAttribute("users", userService.findAll());
-            model.addAttribute("user", user);
-            model.addAttribute("roles", roleService.findAllRole());
+        model.addAttribute("users", userService.findAll());
+        model.addAttribute("user", user);
+        model.addAttribute("roles", roleService.findAllRole());
         return "user-list";
     }
+
     @GetMapping("/admin/user-create")
-    public String createUserForm(Model model) {
+    public String createUserForm(Model model,@AuthenticationPrincipal User user) {
+        model.addAttribute("user", user);
         model.addAttribute("listRoles", roleService.findAllRole());
         return "user-create";
     }
 
-    @PostMapping("/admin/user-create")
-    public String createUser(@RequestParam("role")ArrayList<Long> roles, @ModelAttribute("user") User user, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
+    @PostMapping("add")
+    public String createUser(@RequestParam("role") ArrayList<Long> roles, @ModelAttribute("userNew") User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return "user-create";
         }
-        if (userService.findByEmail(user.getEmail()) != null){
+        if (userService.findByEmail(user.getEmail()) != null) {
             bindingResult.addError(new FieldError("username", "username",
                     String.format("User with email \"%s\" is already exist!", user.getEmail())));
             return "user-create";
@@ -62,21 +65,12 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @GetMapping("/admin/user-update/{id}")
-    public String updateUserForm(@PathVariable("id") Long id, Model model) {
+    @PostMapping("/admin/user-update/{id}")
+    public String updateUser(@RequestParam("role")ArrayList<Long> roles,  User user,@PathVariable("id") Long id, Model model) {
         model.addAttribute("user", userService.findById(id));
         model.addAttribute("listRoles", roleService.findAllRole());
-        return "user-update";
-    }
-
-    @PostMapping("/admin/user-update")
-   public String updateUser(@RequestParam("role")ArrayList<Long> roles,  User user, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
-            return "user-update";
-        } else {
             user.setRoles((roleService.findByIdRoles(roles)));
             userService.saveUser(user);
             return "redirect:/admin";
-        }
-   }
+    }
 }
