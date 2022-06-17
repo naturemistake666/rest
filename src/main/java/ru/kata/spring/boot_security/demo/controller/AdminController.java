@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
@@ -54,7 +55,7 @@ public class AdminController {
                     String.format("User with email \"%s\" is already exist!", user.getEmail())));
             return "user-create";
         }
-        user.setRoles(roleService.findByIdRoles(roles));
+        roleService.addRole(roles,user);
         userService.saveUser(user);
         return "redirect:/admin";
     }
@@ -66,10 +67,10 @@ public class AdminController {
     }
 
     @PostMapping("/admin/user-update/{id}")
-    public String updateUser(@RequestParam("role")ArrayList<Long> roles,  User user,@PathVariable("id") Long id, Model model) {
+    public String updateUser(@RequestParam("role")ArrayList<Long> roles, User user, @PathVariable("id") Long id, Model model) {
         model.addAttribute("user", userService.findById(id));
         model.addAttribute("listRoles", roleService.findAllRole());
-            user.setRoles((roleService.findByIdRoles(roles)));
+            roleService.addRole(roles, user);
             userService.saveUser(user);
             return "redirect:/admin";
     }
